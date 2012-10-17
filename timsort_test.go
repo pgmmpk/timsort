@@ -1,10 +1,9 @@
 package timsort
 
 import (
-	"testing"
-	"rand"
 	"fmt"
-	"container/vector"
+	"math/rand"
+	"testing"
 )
 
 type val struct {
@@ -65,13 +64,15 @@ func TestSmoke(t *testing.T) {
 	a[1] = val{1, 1}
 	a[2] = val{2, 2}
 
-	Sort(a, KeyLessThan)
+	err := Sort(a, KeyLessThan)
+	if err != nil {
+		t.Fatalf("sort: %v", err)
+	}
 
 	if !IsSorted(a, KeyOrderLessThan) {
 		t.Error("not sorted")
 	}
 }
-
 
 func TestSmokeStability(t *testing.T) {
 	a := make([]interface{}, 3)
@@ -79,18 +80,23 @@ func TestSmokeStability(t *testing.T) {
 	a[1] = val{2, 1}
 	a[2] = val{2, 2}
 
-	Sort(a, KeyLessThan)
+	err := Sort(a, KeyLessThan)
+	if err != nil {
+		t.Fatalf("sort: %v", err)
+	}
 
 	if !IsSorted(a, KeyOrderLessThan) {
 		t.Error("not sorted")
 	}
 }
 
-
 func Test1K(t *testing.T) {
 	a := makeTestArray(1024)
 
-	Sort(a, KeyLessThan)
+	err := Sort(a, KeyLessThan)
+	if err != nil {
+		t.Fatalf("sort: %v", err)
+	}
 	if !IsSorted(a, KeyOrderLessThan) {
 		t.Error("not sorted")
 	}
@@ -99,7 +105,10 @@ func Test1K(t *testing.T) {
 func Test1M(t *testing.T) {
 	a := makeTestArray(1024 * 1024)
 
-	Sort(a, KeyLessThan)
+	err := Sort(a, KeyLessThan)
+	if err != nil {
+		t.Fatalf("sort: %v", err)
+	}
 	if !IsSorted(a, KeyOrderLessThan) {
 		t.Error("not sorted")
 	}
@@ -126,13 +135,19 @@ func TestRandom1M(t *testing.T) {
 	b := make([]interface{}, size)
 	copy(b, a)
 
-	Sort(a, KeyLessThan)
+	err := Sort(a, KeyLessThan)
+	if err != nil {
+		t.Fatalf("sort: %v", err)
+	}
 	if !IsSorted(a, KeyOrderLessThan) {
 		t.Error("not sorted")
 	}
 
 	// sort by order
-	Sort(a, OrderLessThan)
+	err = Sort(a, OrderLessThan)
+	if err != nil {
+		t.Fatalf("sort: %v", err)
+	}
 	for i := 0; i < len(b); i++ {
 		if !Equals(b[i], a[i]) {
 			t.Error("oops")
@@ -147,26 +162,6 @@ type person struct {
 
 func (self *person) Less(o interface{}) bool {
 	return self.ssn < o.(*person).ssn
-}
-
-func TestSortVector(t *testing.T) {
-	var v vector.Vector
-
-	v.Push(&person{123, "jack"})
-	v.Push(&person{124, "mary"})
-	v.Push(&person{120, "bill"})
-
-	SortVector(v)
-
-	if v[0].(*person).name != "bill" {
-		t.Error("bill")
-	}
-	if v[1].(*person).name != "jack" {
-		t.Error("jack")
-	}
-	if v[2].(*person).name != "mary" {
-		t.Error("mary")
-	}
 }
 
 const (
@@ -274,7 +269,10 @@ func TestBentleyMcIlroy(t *testing.T) {
 					gdata := make([]interface{}, len(mdata))
 					copy(gdata, mdata)
 
-					Sort(mdata, KeyLessThan)
+					err := Sort(mdata, KeyLessThan)
+					if err != nil {
+						t.Fatalf("sort: %v", err)
+					}
 
 					// If we were testing C qsort, we'd have to make a copy
 					// of the array and sort it ourselves and then compare
@@ -290,7 +288,10 @@ func TestBentleyMcIlroy(t *testing.T) {
 						t.FailNow()
 					}
 
-					Sort(mdata, OrderLessThan)
+					err = Sort(mdata, OrderLessThan)
+					if err != nil {
+						t.Fatalf("sort: %v", err)
+					}
 					for i := 0; i < len(data); i++ {
 						if !Equals(gdata[i], mdata[i]) {
 							t.Error("restore sort failed")
